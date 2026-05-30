@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+requests
+beautifulsoup4
+groq
+lxml
+python-multipart
+python-dotenv
