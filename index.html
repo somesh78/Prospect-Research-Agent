@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Prospect Research Agent</title>
+
+<style>
+
+body{
+    font-family:Arial,sans-serif;
+    max-width:1200px;
+    margin:auto;
+    padding:30px;
+    background:#f4f4f4;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    margin-bottom:20px;
+}
+
+input{
+    width:100%;
+    padding:10px;
+    margin-top:8px;
+    margin-bottom:15px;
+}
+
+button{
+    padding:12px 20px;
+    cursor:pointer;
+}
+
+pre{
+    white-space:pre-wrap;
+    word-wrap:break-word;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,td{
+    border:1px solid #ddd;
+    padding:10px;
+}
+
+th{
+    background:#eee;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>🏢 Prospect Research Agent</h1>
+
+<div class="card">
+
+<h2>Enrich Company</h2>
+
+<label>Website Name</label>
+<input id="website_name" placeholder="Atlassian">
+
+<label>Company URL</label>
+<input id="url" placeholder="https://www.atlassian.com">
+
+<button onclick="enrichCompany()">Enrich</button>
+
+<p id="loading"></p>
+
+<h3>Result</h3>
+
+<pre id="result"></pre>
+
+</div>
+
+<div class="card">
+
+<h2>Results</h2>
+
+<button onclick="loadResults()">Show All Results</button>
+
+<br><br>
+
+<table id="resultsTable">
+
+<thead>
+<tr>
+<th>Website</th>
+<th>Company</th>
+<th>Email</th>
+<th>Phone</th>
+<th>Core Service</th>
+</tr>
+</thead>
+
+<tbody></tbody>
+
+</table>
+
+</div>
+
+<script>
+
+async function enrichCompany(){
+
+    let website_name =
+        document.getElementById("website_name").value;
+
+    let url =
+        document.getElementById("url").value;
+
+    document.getElementById("loading").innerText =
+        "⏳ Enriching...";
+
+    try{
+
+        const response = await fetch("/enrich",{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({
+                website_name,
+                url
+            })
+        });
+
+        const data = await response.json();
+
+        document.getElementById("result").textContent =
+            JSON.stringify(data,null,2);
+
+    }
+    catch(err){
+
+        alert("Failed");
+
+    }
+
+    document.getElementById("loading").innerText = "";
+}
+
+async function loadResults(){
+
+    const response = await fetch("/results");
+
+    const data = await response.json();
+
+    const tbody =
+        document.querySelector("#resultsTable tbody");
+
+    tbody.innerHTML = "";
+
+    data.forEach(item => {
+
+        tbody.innerHTML += `
+        <tr>
+            <td>${item.website_name || ""}</td>
+            <td>${item.company_name || ""}</td>
+            <td>${(item.mail || []).join(", ")}</td>
+            <td>${item.mobile_number || ""}</td>
+            <td>${item.core_service || ""}</td>
+        </tr>
+        `;
+
+    });
+
+}
+
+</script>
+
+</body>
+</html>
